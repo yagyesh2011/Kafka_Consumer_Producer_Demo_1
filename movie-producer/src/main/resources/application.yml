@@ -1,3 +1,18 @@
 spring:
   application:
     name: movie-producer
+    max-in-memory:
+      size: "524288" # 512KB
+  kafka:
+    producer:
+      bootstrap-servers: "localhost:9093"
+      key-serializer: "org.apache.kafka.common.serialization.StringSerializer"
+      value-serializer: "org.springframework.kafka.support.serializer.JsonSerializer"
+rapid-api:
+  key: "{api-key}"
+  host: "imdb236.p.rapidapi.com"
+kafka:
+  topic:
+      top250: "top-250"
+
+
