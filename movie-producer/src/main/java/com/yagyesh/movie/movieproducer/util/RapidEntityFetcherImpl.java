@@ -1,6 +1,6 @@
 package com.yagyesh.movie.movieproducer.util;
 
-import com.yagyesh.movie.movieproducer.domain.Movie;
+import com.yagyesh.movie.domain.Movie;
 import com.yagyesh.movie.movieproducer.exceptions.MovieNotFoundException;
 import com.yagyesh.movie.movieproducer.service.LocalRestClient;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +25,11 @@ public class RapidEntityFetcherImpl implements EntityFetcher<Movie, String> {
     public Movie getEntityWithId(String movieId) {
         // Implementation to fetch movie details from the RapidAPI service
         // This is a placeholder implementation and should be replaced with actual logic
-        Movie movie = webClient.getWithId("/api/imdb/", movieId, Movie.class);
+        Movie movie = (Movie) webClient.getWithId("/api/imdb/", movieId, Movie.newBuilder());
         if (movie == null) {
             throw new MovieNotFoundException("Movie not found for ID: " + movieId);
         }
-        //log.info("Fetched movie details: {}", movie);
+        log.info("Fetched movie details: {}", movie);
         return movie;
     }
 

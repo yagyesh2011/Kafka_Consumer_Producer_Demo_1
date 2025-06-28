@@ -3,6 +3,9 @@ package com.yagyesh.movie.movieproducer.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,17 +52,23 @@ public class LocalRestClient {
         return ids;
     }
 
-    public <K> K getWithId(String url, String id, Class<K> response) {
+    public Message getWithId(String url, String id, Message.Builder builder) {
         String jsonString = client.get()
                 .uri(url + "/" + id)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonFormat.Parser parser = JsonFormat.parser();
+        if (jsonString == null || jsonString.isEmpty()) {
+            log.warn("No data received from URL: {}", url + "/" + id);
+            return null;
+        }
+        log.info("Response from URL {}: {}", url + "/" + id, jsonString);
         try {
-            return objectMapper.readValue(jsonString, response);
-        } catch (JsonProcessingException e) {
+            parser.merge(jsonString, builder);
+        } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException(e);
         }
+        return builder.build();
     }
 }

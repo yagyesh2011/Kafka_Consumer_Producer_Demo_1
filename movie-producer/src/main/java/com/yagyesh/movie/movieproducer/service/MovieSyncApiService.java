@@ -1,6 +1,7 @@
 package com.yagyesh.movie.movieproducer.service;
 
-import com.yagyesh.movie.movieproducer.domain.Movie;
+import com.google.protobuf.Message;
+import com.yagyesh.movie.domain.Movie;
 import com.yagyesh.movie.movieproducer.util.EntityFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,12 +14,12 @@ import org.springframework.stereotype.Service;
 @Qualifier("movieSyncApiService")
 public class MovieSyncApiService implements SyncApiService {
     private final EntityFetcher<Movie, String> entityFetcher;
-    private final KafkaTemplate<String, Movie> kafkaTemplate;
+    private final KafkaTemplate<String, Message> kafkaTemplate;
 
     @Value("${kafka.topic.top250}")
     private String top250Topic;
 
-    public MovieSyncApiService(EntityFetcher<Movie, String> entityFetcher, KafkaTemplate<String, Movie> kafkaTemplate) {
+    public MovieSyncApiService(EntityFetcher<Movie, String> entityFetcher, KafkaTemplate<String, Message> kafkaTemplate) {
         this.entityFetcher = entityFetcher;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -32,7 +33,7 @@ public class MovieSyncApiService implements SyncApiService {
                         .forEach(id -> {
                             Movie movie = entityFetcher.getEntityWithId(id);
                             if (movie != null) {
-                                //log.info("Publishing movie to Kafka: {}", movie);
+                                log.info("Publishing movie to Kafka: {}", movie);
                                 kafkaTemplate.send(top250Topic, movie.getId(), movie).whenCompleteAsync((result, ex) -> {
                                     if (ex != null) {
                                         log.error("Failed to publish movie with ID {}: {}", id, ex.getMessage());

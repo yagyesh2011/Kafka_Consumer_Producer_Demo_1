@@ -7,12 +7,24 @@ spring:
     producer:
       bootstrap-servers: "localhost:9093"
       key-serializer: "org.apache.kafka.common.serialization.StringSerializer"
-      value-serializer: "org.springframework.kafka.support.serializer.JsonSerializer"
+      value-serializer: "io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer"
+      properties:
+        schema.registry.url: "http://localhost:8082"
 rapid-api:
-  key: "{api-key}"
+  key: "{key}"
   host: "imdb236.p.rapidapi.com"
+tmdb:
+  api:
+    key: "f0b1c2d3e4f5g6h7i8j9k0l1m2n3o4p5"
+  base:
+    url: "https://api.themoviedb.org/3"
 kafka:
   topic:
       top250: "top-250"
+      genre: "genres"
+server:
+  port: 8083
 
-
+schema:
+  registry:
+    url: "http://localhost:8081"

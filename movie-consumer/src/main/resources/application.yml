@@ -1,3 +1,24 @@
 spring:
   application:
     name: movie-consumer
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    password: "{key}"
+    username: "postgres"
+    driver-class-name: "org.postgresql.Driver"
+  kafka:
+    consumer:
+      bootstrap-servers: "localhost:9093"
+      key-deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+      value-deserializer: "io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer"
+      group-id: "movie-consumer-group"
+      properties:
+        schema.registry.url: "http://localhost:8082"
+        spring.json.trusted.packages: "*"
+  jpa:
+    hibernate:
+      ddl-auto: "create"
+    show-sql: true
+server:
+  port: 8084
+

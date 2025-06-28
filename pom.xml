@@ -10,6 +10,7 @@
         <module>movie-consumer</module>
         <module>movie-producer</module>
         <module>movie-service</module>
+        <module>movies-common</module>
     </modules>
     <properties>
         <java.version>17</java.version>

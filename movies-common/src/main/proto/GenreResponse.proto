@@ -1,0 +1,9 @@
+syntax = "proto3";
+package com.yagyesh.movie.domain;
+import "genre.proto";
+
+option java_multiple_files = true;
+
+message GenreResponse {
+    repeated Genre genres = 1;
+}

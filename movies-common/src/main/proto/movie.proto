@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package com.yagyesh.movie.domain;
+import "genre.proto";
+option java_package = "com.yagyesh.movie.domain";
+option java_multiple_files = true;
+
+message ProductionCompany {
+  int32 id = 1;
+  string logo_path = 2;
+  string name = 3;
+  string origin_country = 4;
+}
+
+message ProductionCountry {
+  string iso_3166_1 = 1;
+  string name = 2;
+}
+
+message SpokenLanguage {
+  string english_name = 1;
+  string iso_639_1 = 2;
+  string name = 3;
+}
+
+message BelongsToCollection {
+  int32 id = 1;
+  string name = 2;
+  string poster_path = 3;
+  string backdrop_path = 4;
+}
+
+message Movie {
+  bool adult = 1;
+  string backdrop_path = 2;
+  BelongsToCollection belongs_to_collection = 3;
+  int32 budget = 4;
+  repeated Genre genres = 5;
+  string homepage = 6;
+  int32 id = 7;
+  string imdb_id = 8;
+  repeated string origin_country = 9;
+  string original_language = 10;
+  string original_title = 11;
+  string overview = 12;
+  double popularity = 13;
+  string poster_path = 14;
+  repeated ProductionCompany production_companies = 15;
+  repeated ProductionCountry production_countries = 16;
+  string release_date = 17;
+  int64 revenue = 18;
+  int32 runtime = 19;
+  repeated SpokenLanguage spoken_languages = 20;
+  string status = 21;
+  string tagline = 22;
+  string title = 23;
+  bool video = 24;
+  double vote_average = 25;
+  int32 vote_count = 26;
+}
