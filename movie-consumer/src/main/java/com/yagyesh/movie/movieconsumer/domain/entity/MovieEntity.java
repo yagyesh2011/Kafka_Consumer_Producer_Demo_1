@@ -1,6 +1,7 @@
 package com.yagyesh.movie.movieconsumer.domain.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -26,6 +27,7 @@ public class MovieEntity {
     @Id
     private String id;
     private String url;
+    @Column(name = "primary_title")
     private String primaryTitle;
     private String originalTitle;
     private String type;
@@ -60,8 +62,8 @@ public class MovieEntity {
     private List<ProductionCompanyEntity> productionCompanies;
     private Long budget;
     private Long grossWorldwide;
-    @ElementCollection
-    private List<String> genres;
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<GenreEntity> genres;
     private Boolean isAdult;
     private Integer runtimeMinutes;
     private Double averageRating;
