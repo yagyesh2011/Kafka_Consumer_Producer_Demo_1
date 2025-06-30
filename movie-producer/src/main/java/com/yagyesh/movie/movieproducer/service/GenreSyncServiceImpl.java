@@ -18,11 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 public class GenreSyncServiceImpl implements SyncGenre {
 
-    @Value("${tmdb.api.key}")
-    public String api_key;
-
     @Autowired
-    @Qualifier("tmdbWebClient")
     public WebClient client;
 
     @Autowired

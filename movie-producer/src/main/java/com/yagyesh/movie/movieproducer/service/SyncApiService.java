@@ -2,8 +2,8 @@ package com.yagyesh.movie.movieproducer.service;
 
 public interface SyncApiService {
 
-    void syncTop250(String type);
+    void syncTopRated();
 
-    void syncMostPopular(String type);
+    void syncMostPopular();
 
 }

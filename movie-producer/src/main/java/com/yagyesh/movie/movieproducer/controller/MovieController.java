@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/sync")
+@RequestMapping("/api/v1/movie/sync")
 public class MovieController {
 
-    @Qualifier("movieSyncApiService")
     private final SyncApiService syncApiService;
 
     @Autowired
@@ -22,10 +21,10 @@ public class MovieController {
     }
     // Define endpoints for movie-related operations here
     // For example:
-     @PostMapping ("/{type}/sync250/")
-     public void sync250Movies(@PathVariable String type) {
+     @PostMapping ("/topRated/")
+     public void sync250Movies() {
             // Call the synchronizer to start the synchronization process
-         syncApiService.syncTop250(type);
+         syncApiService.syncTopRated();
      }
 
 }

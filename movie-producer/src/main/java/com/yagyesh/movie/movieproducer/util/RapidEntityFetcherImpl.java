@@ -1,5 +1,6 @@
 package com.yagyesh.movie.movieproducer.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yagyesh.movie.domain.Movie;
 import com.yagyesh.movie.movieproducer.exceptions.MovieNotFoundException;
 import com.yagyesh.movie.movieproducer.service.LocalRestClient;
@@ -25,7 +26,7 @@ public class RapidEntityFetcherImpl implements EntityFetcher<Movie, String> {
     public Movie getEntityWithId(String movieId) {
         // Implementation to fetch movie details from the RapidAPI service
         // This is a placeholder implementation and should be replaced with actual logic
-        Movie movie = (Movie) webClient.getWithId("/api/imdb/", movieId, Movie.newBuilder());
+        Movie movie = (Movie) webClient.getWithId("/api/imdb/", movieId, Movie.newBuilder(), "language=en-US");
         if (movie == null) {
             throw new MovieNotFoundException("Movie not found for ID: " + movieId);
         }
@@ -34,12 +35,13 @@ public class RapidEntityFetcherImpl implements EntityFetcher<Movie, String> {
     }
 
     @Override
-    public List<Movie> getTop250Entities() {
+    public List<Movie> getTopRatedEntities(int page) {
         return List.of();
     }
 
+
     @Override
-    public List<String> getTop250EntitiesIds() {
+    public List<String> getPopularEntities(int page) {
         try {
             List<String> ids = webClient.getTop250Ids("/api/imdb/top250-movies");
             log.info("Fetched top 250 movie IDs: {}", ids);
@@ -48,5 +50,10 @@ public class RapidEntityFetcherImpl implements EntityFetcher<Movie, String> {
             log.error("Error fetching top 250 movies: {}", e.getMessage());
             return List.of();
         }
+    }
+
+    @Override
+    public List<Integer> getEntitiesIds(int page) throws JsonProcessingException {
+        return List.of();
     }
 }

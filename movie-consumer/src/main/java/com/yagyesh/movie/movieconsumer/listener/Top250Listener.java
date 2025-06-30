@@ -3,20 +3,27 @@ package com.yagyesh.movie.movieconsumer.listener;
 
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.util.JsonFormat;
 import com.yagyesh.movie.domain.Movie;
+import com.yagyesh.movie.domain.ProductionCountry;
+import com.yagyesh.movie.domain.SpokenLanguage;
+import com.yagyesh.movie.movieconsumer.domain.entity.BelongsToCollectionEntity;
+import com.yagyesh.movie.movieconsumer.domain.entity.GenreEntity;
 import com.yagyesh.movie.movieconsumer.domain.entity.MovieEntity;
-import com.yagyesh.movie.movieconsumer.domain.entity.PersonEntity;
+import com.yagyesh.movie.movieconsumer.domain.entity.MovieGenre;
+import com.yagyesh.movie.movieconsumer.domain.entity.MovieGenreId;
 import com.yagyesh.movie.movieconsumer.domain.entity.ProductionCompanyEntity;
-import com.yagyesh.movie.movieconsumer.domain.entity.ThumbnailEntity;
+import com.yagyesh.movie.movieconsumer.repository.BelongsToCollectionRepository;
 import com.yagyesh.movie.movieconsumer.repository.MovieRepository;
+import com.yagyesh.movie.movieconsumer.repository.ProductionCompanyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -25,89 +32,82 @@ public class Top250Listener {
     private final MovieRepository movieRepository;
 
     @Autowired
+    private BelongsToCollectionRepository belongsToCollectionRepository;
+
+    @Autowired
+    private ProductionCompanyRepository productionCompanyRepository;
+
+    @Autowired
     public Top250Listener(MovieRepository movieRepository) {
         // Constructor for dependency injection if needed
         this.movieRepository = movieRepository;
     }
 
     @KafkaListener(topics = "top-250", groupId = "movie-consumer-group")
+    @Transactional
     public void listenTop250(DynamicMessage message1) throws InvalidProtocolBufferException {
-        Movie.Builder movieBuilder = Movie.newBuilder();
-        JsonFormat.Parser parser = JsonFormat.parser();
-        parser.merge(message1.toString(), movieBuilder);
-        Movie message = movieBuilder.build();
+        Movie message = Movie.parseFrom(message1.toByteArray());
         // Process the message for top 250 movies
         log.info("Received message from top-250 topic: {}", message);
+
+        List<ProductionCompanyEntity> productionCompanyEntityList = message.getProductionCompaniesList().stream()
+                .map(country -> ProductionCompanyEntity.builder()
+                        .id(country.getId())
+                        .logoPath(country.getLogoPath())
+                        .originCountry(country.getOriginCountry())
+                        .name(country.getName())
+                        .build())
+                .toList();
+        BelongsToCollectionEntity belongsToCollectionEntity = null;
+        if (message.getBelongsToCollection().getId() != 0) {
+            belongsToCollectionEntity = BelongsToCollectionEntity.builder()
+                    .id(message.getBelongsToCollection().getId())
+                    .name(message.getBelongsToCollection().getName())
+                    .build();
+            belongsToCollectionRepository.save(belongsToCollectionEntity);
+        }
+        productionCompanyRepository.saveAll(productionCompanyEntityList);
         MovieEntity.MovieEntityBuilder movieEntityBuilder = MovieEntity.builder()
                 .id(message.getId())
                 .originalTitle(message.getOriginalTitle())
-                .endYear(message.getEndYear())
-                .primaryImage(message.getPrimaryImage())
-                .genres(message.getGenresList())
-                .contentRating(message.getContentRating())
-                .averageRating(message.getAverageRating())
-                .numVotes(message.getNumVotes())
+                .movieGenres(message.getGenresList().stream()
+                        .map(genre -> MovieGenre.builder()
+                                .id(MovieGenreId.builder()
+                                        .movieId(message.getId())
+                                        .genreId(genre.getId())
+                                        .build())
+                                .movie(MovieEntity.builder()
+                                        .id(message.getId())
+                                        .build())
+                                .genre(GenreEntity.builder()
+                                        .id(genre.getId())
+                                        .build())
+                                .build())
+                        .toList())
+                .voteAverage(message.getVoteAverage())
                 .budget(message.getBudget())
-                .description(message.getDescription())
-                .grossWorldwide(message.getGrossWorldwide())
-                .isAdult(message.getIsAdult())
-                .spokenLanguages(message.getSpokenLanguagesList())
-                .runtimeMinutes(message.getRuntimeMinutes())
-                .directors(message.getDirectorsList().stream()
-                        .map(director -> PersonEntity.builder()
-                                .id(director.getId())
-                                .url(director.getUrl())
-                                .fullName(director.getFullName())
-                                .build())
-                        .toList())
-                .writers(message.getWritersList().stream()
-                        .map(writer -> PersonEntity.builder()
-                                .id(writer.getId())
-                                .url(writer.getUrl())
-                                .fullName(writer.getFullName())
-                                .build())
-                        .toList())
-                .cast(message.getCastList().stream()
-                        .map(castMember -> PersonEntity.builder()
-                                .id(castMember.getId())
-                                .url(castMember.getUrl())
-                                .fullName(castMember.getFullName())
-                                .job(castMember.getJob())
-                                .thumbnails(castMember.getThumbnailsList().stream()
-                                        .map(thumbnail -> ThumbnailEntity.builder()
-                                                .url(thumbnail.getUrl())
-                                                .width(thumbnail.getWidth())
-                                                .height(thumbnail.getHeight())
-                                                .build())
-                                        .toList())
-                                .characters(castMember.getCharactersList())
-                                .build())
-                        .toList())
-                .metascore(message.getMetascore())
-                .startYear(message.getStartYear())
-                .type(message.getType())
-                .url(message.getUrl())
-                .primaryTitle(message.getPrimaryTitle())
-                .thumbnails(message.getThumbnailsList().stream()
-                        .map(thumbnail -> ThumbnailEntity.builder()
-                                .url(thumbnail.getUrl())
-                                .width(thumbnail.getWidth())
-                                .height(thumbnail.getHeight())
-                                .build())
-                        .toList())
-                .trailer(message.getTrailer())
-                .countriesOfOrigin(message.getCountriesOfOriginList())
-                .externalLinks(message.getExternalLinksList())
-                .filmingLocations(message.getFilmingLocationsList())
-                .interests(message.getInterestsList())
-                .releaseDate(parseReleaseDate(message.getReleaseDate()))
-                .productionCompanies(message.getProductionCompaniesList().stream()
-                        .map(company -> ProductionCompanyEntity.builder()
-                                .id(company.getId())
-                                .name(company.getName())
-                                .build())
-                        .toList());
-
+                .voteCount(message.getVoteCount())
+                .title(message.getTitle())
+                .adult(message.getAdult())
+                .video(message.getVideo())
+                .spokenLanguages(message.getSpokenLanguagesList().stream().map(SpokenLanguage::getName).toList())
+                .runtime(message.getRuntime())
+                .status(message.getStatus())
+                .tagline(message.getTagline())
+                .overview(message.getOverview())
+                .imdbId(message.getImdbId())
+                .homepage(message.getHomepage())
+                .backdropPath(message.getBackdropPath())
+                .belongsToCollection(belongsToCollectionEntity)
+                .posterPath(message.getPosterPath())
+                .originalLanguage(message.getOriginalLanguage())
+                .originalTitle(message.getOriginalTitle())
+                .popularity(message.getPopularity())
+                .productionCompanies(productionCompanyEntityList)
+                .revenue(message.getRevenue())
+                .originCountry(message.getOriginCountryList())
+                .productionCountries(message.getProductionCountriesList().stream().map(ProductionCountry::getIso31661).toList())
+                .releaseDate(parseReleaseDate(message.getReleaseDate()));
         movieRepository.save(movieEntityBuilder.build());
     }
 

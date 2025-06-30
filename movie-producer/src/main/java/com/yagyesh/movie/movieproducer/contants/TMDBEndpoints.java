@@ -3,7 +3,7 @@ package com.yagyesh.movie.movieproducer.contants;
 public class TMDBEndpoints {
     public static final String BASE_URL = "https://api.themoviedb.org/3";
     public static final String DISCOVER_MOVIE = BASE_URL + "/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key={apiKey}";
-    public static final String MOVIE_DETAILS = BASE_URL + "/movie/{movieId}?api_key={apiKey}&language=en-US";
+    public static final String MOVIE_DETAILS = "/movie";
     public static final String MOVIE_CREDITS = BASE_URL + "/movie/{movieId}/credits?api_key={apiKey}&language=en-US";
     public static final String MOVIE_IMAGES = BASE_URL + "/movie/{movieId}/images?api_key={apiKey}&language=en-US&include_image_language=en,null";
     public static final String MOVIE_VIDEOS = BASE_URL + "/movie/{movieId}/videos?api_key={apiKey}&language=en-US";
@@ -15,7 +15,7 @@ public class TMDBEndpoints {
     public static final String SEARCH_MOVIE = BASE_URL + "/search/movie?api_key={apiKey}&language=en-US&query={query}&page=1&include_adult=false";
     public static final String MOVIE_NOW_PLAYING = BASE_URL + "/movie/now_playing?api_key={apiKey}&language=en-US&page=1";
     public static final String MOVIE_POPULAR = BASE_URL + "/movie/popular?api_key={apiKey}&language=en-US&page=1";
-    public static final String MOVIE_TOP_RATED = BASE_URL + "/movie/top_rated?api_key={apiKey}&language=en-US&page=1";
+    public static final String MOVIE_TOP_RATED = BASE_URL + "/movie/top_rated?language=en-US&page=";
     public static final String MOVIE_UPCOMING = BASE_URL + "/movie/upcoming?api_key={apiKey}&language=en-US&page=1";
     public static final String MOVIE_LATEST = BASE_URL + "/movie/latest?api_key={apiKey}&language=en-US";
     public static final String MOVIE_ALTERNATIVE_TITLES = BASE_URL + "/movie/{movieId}/alternative_titles?api_key={apiKey}&language=en-US";

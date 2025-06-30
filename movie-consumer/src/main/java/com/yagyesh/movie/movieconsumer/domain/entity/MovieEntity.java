@@ -1,92 +1,108 @@
 package com.yagyesh.movie.movieconsumer.domain.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "movies")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MovieEntity {
     @Id
-    private String id;
-    private String url;
-    @Column(name = "primary_title")
-    private String primaryTitle;
+    private int id;
+
+    private boolean adult;
+
+    private String backdropPath;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "collection_id")
+    private BelongsToCollectionEntity belongsToCollection;
+
+    private int budget;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MovieGenre> movieGenres;
+
+    private String homepage;
+
+    private String imdbId;
+
+    @Convert(converter = StringListConverter.class)
+    private List<String> originCountry;
+
+    private String originalLanguage;
+
     private String originalTitle;
-    private String type;
-    private String description;
-    private String primaryImage;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "movie_thumbnails",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "thumbnail_id"))
-    private List<ThumbnailEntity> thumbnails;
-    private String trailer;
-    private String contentRating;
-    private Integer startYear;
-    private Integer endYear;
-    private LocalDate releaseDate;
-    @ElementCollection
-    private List<String> interests;
-    @ElementCollection
-    private List<String> countriesOfOrigin;
-    @ElementCollection
-    private List<String> externalLinks;
-    @ElementCollection
-    private List<String> spokenLanguages;
-    @ElementCollection
-    private List<String> filmingLocations;
+    @Column(length = 1000)
+    private String overview;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "movie_production_companies",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "production_company_id"))
+    private double popularity;
+
+    private String posterPath;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_id")
     private List<ProductionCompanyEntity> productionCompanies;
-    private Long budget;
-    private Long grossWorldwide;
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<GenreEntity> genres;
-    private Boolean isAdult;
-    private Integer runtimeMinutes;
-    private Double averageRating;
-    private Long numVotes;
-    private Integer metascore;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "movie_directors",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private List<PersonEntity> directors;
+    private LocalDate releaseDate;
 
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @ManyToMany
-    @JoinTable(name = "movie_writers",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private List<PersonEntity> writers;
+    private long revenue;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "movie_cast",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private List<PersonEntity> cast;
+    private int runtime;
+
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "spoken_languages")
+    private List<String> spokenLanguages;
+
+    private String status;
+
+    private String tagline;
+
+    private String title;
+
+    private boolean video;
+
+    private double voteAverage;
+
+    private int voteCount;
+
+    @Convert(converter = StringListConverter.class)
+    private List<String> productionCountries;
+
 
 }
+
+@Converter
+class StringListConverter implements AttributeConverter<List<String>, String> {
+    @Override
+    public String convertToDatabaseColumn(List<String> list) {
+        return list != null ? String.join(",", list) : "";
+    }
+
+    @Override
+    public List<String> convertToEntityAttribute(String joined) {
+        return (joined == null || joined.isEmpty()) ? new ArrayList<>() : Arrays.asList(joined.split(","));
+    }
+}
+
+
