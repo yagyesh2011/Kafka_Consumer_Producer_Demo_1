@@ -23,7 +23,7 @@ kafka:
       top250: "top-250"
       genre: "genres"
 server:
-  port: 8083
+  port: 8089
 
 schema:
   registry:
